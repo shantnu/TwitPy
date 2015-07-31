@@ -136,7 +136,7 @@ print(Counter(top_lang))
 
 trends = api.trends_place(1)
 
-print(trends[0]["trends"][0])
+#print(trends[0]["trends"][0])
 '''
 In [68]: Out[68]: 
 {'name': '#ManuEligeA',
@@ -148,8 +148,12 @@ In [68]: Out[68]:
 print(trends[0]["trends"][0]['name'])
 # Out[69]: '#ManuEligeA'
 
-for t in trends[0]["trends"]:
-    print(t["name"])
+for trend in trends[0]["trends"][:5]:
+    #print(t["name"])
+    tt = tweepy.Cursor(api.search, q = trend['name']).items(3)
+
+    for t in tt:
+        print(trend['name'], t.text)
 
 
 '''
