@@ -108,7 +108,7 @@ class listener(StreamListener):
 
             self.stats_obj.add_lang(langs[json_data["lang"]])
 
-            if retweet_count > 50:
+            if retweet_count > 5000:
 
                 print (tweet, retweet_count, langs[json_data["lang"]])
                 self.stats_obj.add_top_lang(langs[json_data["lang"]])
@@ -116,7 +116,7 @@ class listener(StreamListener):
 
             self.count += 1
 
-            if self.count == 50:
+            if self.count == 5000:
                 return False
 
             return True
