@@ -14,11 +14,11 @@ except:
     # Nothing to drop, do nothing.
     pass
 
-cmd = "CREATE TABLE trend_data (trend TEXT, trend_id1 INT, trend_id2 INT, trend_id3 INT)"
+cmd = "CREATE TABLE trend_data (trend TEXT, trend_id1 TEXT, trend_id2 TEXT, trend_id3 TEXT)"
 c.execute(cmd)
 
 
-cmd = "CREATE TABLE twit_data (top_tweet_id INT)"
+cmd = "CREATE TABLE twit_data (top_tweet TEXT)"
 c.execute(cmd)
 
 

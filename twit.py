@@ -5,6 +5,7 @@ import pdb
 import json
 from collections import Counter
 import sqlite3
+from local_config import *
 
 langs = \
 {'ar': 'Arabic',
@@ -56,6 +57,21 @@ swear_words = ["fuck", "shit", "bitch", "idiot"]
 
 love_words = ["love", "thank", "happy", "bless"]
 
+
+class Twit_utils():
+
+    def __init__(self, api):
+        self.api = api
+
+
+    def get_tweet_html(self, id):
+        oembed = api.get_oembed(id=id, omit_script = True)
+
+        tweet_html = oembed['html'].strip("\n")
+
+        return tweet_html
+
+
 class stats():
 
     def __init__(self):
@@ -77,20 +93,21 @@ class stats():
     def swear_word_found(self):
         self.swear_words += 1
 
-    def get_top_tweets(self, tweet_id):
-        self.top_tweets.append(tweet_id)
+    def save_top_tweets(self, tweet_html):
+        self.top_tweets.append(tweet_html)
 
     def get_stats(self):
         return self.lang, self.top_lang, self.love_words, self.swear_words, self.top_tweets
 
 class listener(StreamListener):
 
-    def __init__(self, stats_obj):
+    def __init__(self, stats_obj, twit_utils):
         self.count = 0
         self.stats_obj = stats_obj
+        self.twit_utils = twit_utils
 
     def on_data(self, data):
-        try:
+        try:            
             json_data = json.loads(data)
             #print(json_data)
 
@@ -109,14 +126,14 @@ class listener(StreamListener):
             self.stats_obj.add_lang(langs[json_data["lang"]])
 
             if retweet_count > 5000:
-
                 print (tweet, retweet_count, langs[json_data["lang"]])
                 self.stats_obj.add_top_lang(langs[json_data["lang"]])
-                self.stats_obj.get_top_tweets(json_data['id'])
+                tweet_html = self.twit_utils.get_tweet_html(json_data['id'])
+                self.stats_obj.save_top_tweets(tweet_html)
 
             self.count += 1
 
-            if self.count == 5000:
+            if self.count == 5:
                 return False
 
             return True
@@ -132,11 +149,11 @@ class listener(StreamListener):
         pdb.set_trace()
         print(status)
         
-auth = tweepy.OAuthHandler("QldPlceeLcJwzPWI83SDGcHcw", "nFuBZiQ1rRA6vFcc8oUnEpz9fEoO32cfj2ba6ldrcyhImieEcH")
-auth.set_access_token("550450774-uzpfSFkG6irE3mtP1duxBysS8CFGZ21ALAEwaufT", "sxND0MAXQUOcmlZ1ckVJaBDMh88mJBWvSXEKxTIwtTUQz")
+auth = tweepy.OAuthHandler(cons_tok, cons_sec)
+auth.set_access_token(app_tok, app_sec)
 
 api = tweepy.API(auth)
-
+twit_utils = Twit_utils(api)
 
 db = "./twit_data.db"
 
@@ -145,7 +162,7 @@ c = conn.cursor()
 
 s = stats()
 try:
-    twitterStream = Stream(auth, listener(s))
+    twitterStream = Stream(auth, listener(s, twit_utils))
     twitterStream.sample()
 except Exception as e:
         print("Error. Restarting Stream.... Error: ")
@@ -162,7 +179,6 @@ c.execute("INSERT INTO lang_data VALUES (?,?)", (str(list(Counter(lang).items())
 
 c.execute("INSERT INTO love_data VALUES (?,?)", (love_words, swear_words))
 
-pdb.set_trace()
 for t in top_tweets:
     c.execute("INSERT INTO twit_data VALUES (?)", (t,))
 
@@ -176,28 +192,15 @@ conn.close()
 
 #for t in tt:
     #print(t.text)
-'''
 
-trends = api.trends_place(1)
 
-#print(trends[0]["trends"][0])
-'''
-'''
-In [68]: Out[68]: 
-{'name': '#ManuEligeA',
- 'promoted_content': None,
- 'query': '%23ManuEligeA',
- 'url': 'http://twitter.com/search?q=%23ManuEligeA'}
- '''
 
-#print(trends[0]["trends"][0]['name'])
-# Out[69]: '#ManuEligeA'
-'''
 db = "./twit_data.db"
 
 conn = sqlite3.connect(db)
 c = conn.cursor()
 
+trends = api.trends_place(1)
 trend_data = []
 
 for trend in trends[0]["trends"][:5]:
@@ -209,8 +212,9 @@ for trend in trends[0]["trends"][:5]:
     
 
     for t in tt:
-        trend_tweets.append(t.id)
-        #print("  {}  ".format(t.text))
+        tweet_html = twit_utils.get_tweet_html(t.id)
+        trend_tweets.append(tweet_html)
+        print(tweet_html)
 
     trend_data.append(tuple(trend_tweets))
 
@@ -220,7 +224,7 @@ c.executemany("INSERT INTO trend_data VALUES (?,?,?,?)", trend_data)
 
 conn.commit()
 conn.close()
-'''
+
 '''
 api.get_oembed(id=626415779202920448)
 Out[76]: 
