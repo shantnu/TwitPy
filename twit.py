@@ -133,7 +133,7 @@ class listener(StreamListener):
 
             self.count += 1
 
-            if self.count == 5:
+            if self.count == 5000:
                 return False
 
             return True
