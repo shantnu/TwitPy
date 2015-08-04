@@ -65,7 +65,7 @@ class Twit_utils():
 
 
     def get_tweet_html(self, id):
-        oembed = api.get_oembed(id=id, omit_script = True)
+        oembed = api.get_oembed(id=id)
 
         tweet_html = oembed['html'].strip("\n")
 
@@ -125,7 +125,7 @@ class listener(StreamListener):
 
             self.stats_obj.add_lang(langs[json_data["lang"]])
 
-            if retweet_count > 5000:
+            if retweet_count > 10000:
                 print (tweet, retweet_count, langs[json_data["lang"]])
                 self.stats_obj.add_top_lang(langs[json_data["lang"]])
                 tweet_html = self.twit_utils.get_tweet_html(json_data['id'])
@@ -214,7 +214,7 @@ for trend in trends[0]["trends"][:5]:
     for t in tt:
         tweet_html = twit_utils.get_tweet_html(t.id)
         trend_tweets.append(tweet_html)
-        print(tweet_html)
+        #print(tweet_html)
 
     trend_data.append(tuple(trend_tweets))
 

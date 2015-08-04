@@ -3,19 +3,6 @@ app = Flask(__name__)
 import sqlite3
 import ast
 
-langs = [('Turkish', 6),
- ('Portuguese', 1),
- ('Arabic', 3),
- ('Korean', 1),
- ('French', 1),
- ('Russian', 1),
- ('English', 11),
- ('Spanish', 7),
- ('Polish', 1),
- ('Japanese', 11),
- ('Bulgarian', 1),
- ('Thai', 6)]
-
 
 def read_data():
     db = "./twit_data.db"
@@ -27,10 +14,14 @@ def read_data():
 
     result = c.fetchone()
     lang = ast.literal_eval(result['language'])
-    top_lang = ast.literal_eval(result['top_language'])    
+    top_lang = ast.literal_eval(result['top_language'])
+
+    c.execute("SELECT * from twit_data LIMIT 1")
+    result = c.fetchone()
+    tweet = result['top_tweet']
     conn.close()
 
-    return lang, top_lang
+    return lang, top_lang, tweet
 
 
 
@@ -38,10 +29,10 @@ def read_data():
 def main():
 
     language_data = []
-    lang, top_lang = read_data()
+    lang, top_lang, tweet = read_data()
     for l in lang:
         language_data.append([l[0], l[1], l[1]])
-    return render_template('index.html', language_data = language_data)
+    return render_template('index.html', language_data = language_data, tweet = tweet)
 
 if __name__ == "__main__":
     app.run(debug = True)
