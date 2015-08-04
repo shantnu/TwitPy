@@ -16,7 +16,7 @@ def read_data():
     lang = ast.literal_eval(result['language'])
     top_lang = ast.literal_eval(result['top_language'])
 
-    c.execute("SELECT * from twit_data LIMIT 1")
+    c.execute("SELECT * from twit_data  ORDER BY top_tweet DESC LIMIT 1")
     result = c.fetchone()
     tweet = result['top_tweet']
     conn.close()
