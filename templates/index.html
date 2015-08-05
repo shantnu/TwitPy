@@ -6,6 +6,8 @@
 
       // Load the Visualization API and the piechart package.
       google.load('visualization', '1.0', {'packages':['corechart']});
+      google.load("visualization", "1", {packages:["gauge"]});
+
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
@@ -25,7 +27,7 @@
         //data.addRows( [["Turkish", 6, 6], ["Portuguese", 1, 1] ]  );
 
         // Set chart options
-        var options = {'title':'Most used languages on Twitter',
+        var options = {'title':'Most used languages on Twitter: All Tweets',
                        'width':800,
                        'height':600};
 
@@ -34,15 +36,20 @@
 
         chart.draw(data, options);
         
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//
+     
+        
         var data2 = new google.visualization.DataTable();
                 
         data2.addColumn('string', 'Languages');
         data2.addColumn('number', 'Usage');
         data2.addColumn({type: 'number', role: 'annotation'});
-        data2.addRows( {{ language_data | safe }}  );
+        data2.addRows( {{ top_language_data | safe }}  );
 
         // Set chart options
-        var options2 = {'title':'Most used languages on Twitter',
+        var options2 = {'title':'Most used languages on Twitter: Top Tweets',
                        'width':800,
                        'height':600};
 
@@ -50,6 +57,50 @@
         var chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
 
         chart2.draw(data2, options2);
+        
+         // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//
+
+        
+        var data3 = new google.visualization.DataTable();
+                
+        data3.addColumn('string', 'Words');
+        data3.addColumn('number', 'Usage');
+        data3.addColumn({type: 'number', role: 'annotation'});
+        data3.addRows( {{ words_data | safe }}  );
+
+        // Set chart options
+        var options3 = {'title':'Kind Words vs Swear Words',
+                       'width':800,
+                       'height':600,
+                       is3D: true};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart3 = new google.visualization.PieChart(document.getElementById('chart_div3'));
+
+        chart3.draw(data3, options3);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//        
+                      
+        var data4 = google.visualization.arrayToDataTable(
+          {{words_data_gauge | safe }}
+        );
+
+        var options4 = {
+          width: 800, height: 240,
+          redFrom: 90, redTo: 100,
+          yellowFrom:75, yellowTo: 90,
+          minorTicks: 5
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart4 = new google.visualization.Gauge(document.getElementById('chart_div4'));
+
+        chart4.draw(data4, options4);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//        
 
       }
     </script>
@@ -61,8 +112,9 @@
     <!--Div that will hold the pie chart-->
     <div id="chart_div"></div>
     <div id="chart_div2"></div>
+    <div id="chart_div3"></div>
+    <div id="chart_div4"></div>
 
-{{ tweet | safe}}
-
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">he cheating&#10;&quot;<a href="https://twitter.com/B_IsBack">@B_IsBack</a>: I know how to keep my man 🔥 <a href="http://t.co/IINMHB5MWf">pic.twitter.com/IINMHB5MWf</a>&quot;</p>&mdash; Moe Alayan (@MoeAlayan) <a href="https://twitter.com/MoeAlayan/status/570065013253246976">February 24, 2015</a></blockquote>\n<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-</html>
+    {% for tweet in tweets %}
+        {{ tweet2 | safe}}
+    {% endfor %}

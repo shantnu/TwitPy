@@ -65,7 +65,7 @@ class Twit_utils():
 
 
     def get_tweet_html(self, id):
-        oembed = api.get_oembed(id=id)
+        oembed = api.get_oembed(id=id, hide_media = True, hide_thread = True)
 
         tweet_html = oembed['html'].strip("\n")
 
@@ -133,7 +133,7 @@ class listener(StreamListener):
 
             self.count += 1
 
-            if self.count == 5000:
+            if self.count == 500:
                 return False
 
             return True
@@ -175,12 +175,12 @@ print(Counter(lang))
 print(Counter(top_lang))
 print("Love Words {} Swear Words {}".format(love_words, swear_words))
 
-c.execute("INSERT INTO lang_data VALUES (?,?)", (str(list(Counter(lang).items())), str(list(Counter(top_lang).items()))))
+c.execute("INSERT INTO lang_data VALUES (?,?, DATETIME('now'))", (str(list(Counter(lang).items())), str(list(Counter(top_lang).items()))))
 
-c.execute("INSERT INTO love_data VALUES (?,?)", (love_words, swear_words))
+c.execute("INSERT INTO love_data VALUES (?,?, DATETIME('now'))", (love_words, swear_words))
 
 for t in top_tweets:
-    c.execute("INSERT INTO twit_data VALUES (?)", (t,))
+    c.execute("INSERT INTO twit_data VALUES (?, DATETIME('now'))", (t,))
 
 conn.commit()
 conn.close()
@@ -218,7 +218,7 @@ for trend in trends[0]["trends"][:5]:
 
     trend_data.append(tuple(trend_tweets))
 
-c.executemany("INSERT INTO trend_data VALUES (?,?,?,?)", trend_data)
+c.executemany("INSERT INTO trend_data VALUES (?,?,?,?, DATETIME('now'))", trend_data)
 
 
 
