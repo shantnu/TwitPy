@@ -225,7 +225,7 @@ c = conn.cursor()
 trends = api.trends_place(1)
 trend_data = []
 
-for trend in trends[0]["trends"][:5]:
+for trend in trends[0]["trends"]:
     #print(trend['name'])
     trend_tweets = []
     trend_tweets.append(trend['name'])

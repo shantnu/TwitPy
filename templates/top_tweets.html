@@ -1,0 +1,9 @@
+{% extends "index.html" %}
+
+{% block tweets %} 
+    {% for tweet in tweets %}
+        {{ tweet | safe}}
+    {% endfor %}
+    
+
+ {% endblock %}
