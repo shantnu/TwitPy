@@ -6,7 +6,9 @@ import json
 from collections import Counter
 import sqlite3
 from local_config import *
+import re
 
+countries_list = ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina', 'Burundi', 'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros', 'Congo', '"Congo', 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Ivory Coast', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Swaziland', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe', 'Afghanistan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Burma (Myanmar)', 'Cambodia', 'China', 'East Timor', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', '"Korea', '"Korea', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Nepal', 'Oman', 'Pakistan', 'Philippines', 'Qatar', 'Russian Federation', 'Saudi Arabia', 'Singapore', 'Sri Lanka', 'Syria', 'Tajikistan', 'Thailand', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Albania', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Georgia', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City', 'Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua', 'Panama', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States', 'Australia', 'Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'New Zealand', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tonga', 'Tuvalu', 'Vanuatu', 'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela']
 langs = \
 {'ar': 'Arabic',
  'bg': 'Bulgarian',
@@ -80,6 +82,7 @@ class stats():
         self.love_words = 0
         self.swear_words = 0
         self.top_tweets = []
+        self.countries = []
 
     def add_lang(self, lang):
         self.lang.append(lang)
@@ -96,8 +99,11 @@ class stats():
     def save_top_tweets(self, tweet_html):
         self.top_tweets.append(tweet_html)
 
+    def add_country(self, country):
+        self.countries.append(country)
+
     def get_stats(self):
-        return self.lang, self.top_lang, self.love_words, self.swear_words, self.top_tweets
+        return self.lang, self.top_lang, self.love_words, self.swear_words, self.top_tweets, self.countries
 
 class listener(StreamListener):
 
@@ -121,6 +127,19 @@ class listener(StreamListener):
                 if l in tweet.lower():
                     self.stats_obj.swear_word_found()
 
+            for country in countries_list:
+                country_local = "\\b" + country + "\\b"
+                if re.findall(country_local, tweet, flags = re.IGNORECASE):
+                    self.stats_obj.add_country(country)
+
+            # Hack for USA & UK, since no one uses its full name on Twitter
+            # Yes, it's unfair I'm not doing this for all countries.
+            if re.findall("\\busa\\b", tweet, flags = re.IGNORECASE):
+                    self.stats_obj.add_country("United States")
+
+            if re.findall("\\bbritain\\b", tweet, flags = re.IGNORECASE):
+                    self.stats_obj.add_country("United Kingdom")
+
             retweet_count = json_data["retweeted_status"]["retweet_count"]
 
             self.stats_obj.add_lang(langs[json_data["lang"]])
@@ -133,7 +152,7 @@ class listener(StreamListener):
 
             self.count += 1
 
-            if self.count == 500:
+            if self.count == 5000:
                 return False
 
             return True
@@ -169,11 +188,12 @@ except Exception as e:
         print(e.__doc__)
         #print(e.message)
 
-lang, top_lang,love_words, swear_words, top_tweets = s.get_stats()
+lang, top_lang,love_words, swear_words, top_tweets, countries = s.get_stats()
 
 print(Counter(lang))
 print(Counter(top_lang))
 print("Love Words {} Swear Words {}".format(love_words, swear_words))
+print(Counter(countries))
 
 c.execute("INSERT INTO lang_data VALUES (?,?, DATETIME('now'))", (str(list(Counter(lang).items())), str(list(Counter(top_lang).items()))))
 
@@ -181,6 +201,8 @@ c.execute("INSERT INTO love_data VALUES (?,?, DATETIME('now'))", (love_words, sw
 
 for t in top_tweets:
     c.execute("INSERT INTO twit_data VALUES (?, DATETIME('now'))", (t,))
+
+c.execute("INSERT INTO country_data VALUES (?, DATETIME('now'))", (str(list(Counter(countries).items())),))
 
 conn.commit()
 conn.close()

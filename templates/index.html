@@ -7,7 +7,7 @@
       // Load the Visualization API and the piechart package.
       google.load('visualization', '1.0', {'packages':['corechart']});
       google.load("visualization", "1", {packages:["gauge"]});
-
+      google.load("visualization", "1", {packages:["geochart"]});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
@@ -102,6 +102,22 @@
         // ------------------------------------------------------------------//
         // ------------------------------------------------------------------//        
 
+        var data5 = google.visualization.arrayToDataTable(
+          {{ country_data | safe }}
+        );
+
+        var options5 = {
+
+        colorAxis: {colors: ['green', 'blue']}
+      };
+
+
+        var chart5 = new google.visualization.GeoChart(document.getElementById('chart_div5'));
+
+        chart5.draw(data5, options5);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//                
       }
     </script>
     
@@ -114,7 +130,20 @@
     <div id="chart_div2"></div>
     <div id="chart_div3"></div>
     <div id="chart_div4"></div>
+    <div id="chart_div5"></div>
 
     {% for tweet in tweets %}
         {{ tweet2 | safe}}
+    {% endfor %}
+    
+    {% for t in trend %}
+
+    <strong> Trending: {{t | safe}} </strong>
+    </br>
+    {% endfor %}
+    
+    {% for t in trend_tweet %}
+    
+    {{t | safe}} 
+    
     {% endfor %}

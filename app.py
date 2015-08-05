@@ -30,9 +30,26 @@ def read_data():
     love_words = result['love_words']
     swear_words = result['swear_words']
 
+    c.execute("SELECT * from country_data ORDER BY datetime DESC LIMIT 1")
+
+    result = c.fetchone()
+    country = ast.literal_eval(result['country'])
+
+    trend = []
+    trend_tweet = []
+
+    c.execute("SELECT * from trend_data ORDER BY datetime DESC LIMIT 5") 
+    result = c.fetchall()
+
+    for r in result:
+        trend.append(r['trend'])
+        trend_tweet.append(r['trend_id1'])
+        trend_tweet.append(r['trend_id2'])
+        trend_tweet.append(r['trend_id3'])
+
     conn.close()
 
-    return lang, top_lang, tweets, love_words, swear_words
+    return lang, top_lang, tweets, love_words, swear_words, country, trend, trend_tweet
 
 
 
@@ -43,9 +60,10 @@ def main():
     top_language_data = []
     words_data = []
     words_data_gauge = []
+    country_data = []
 
 
-    lang, top_lang, tweets, love_words, swear_words = read_data()
+    lang, top_lang, tweets, love_words, swear_words, country, trend, trend_tweet = read_data()
     for l in lang:
         language_data.append([l[0], l[1], l[1]])
 
@@ -59,7 +77,14 @@ def main():
     words_data_gauge.append(['love_words', love_words])
     words_data_gauge.append(['swear_words', swear_words])
 
-    return render_template('index.html', language_data = language_data, top_language_data = top_language_data, tweets = tweets, words_data = words_data, words_data_gauge = words_data_gauge)
+    country_data.append(['Country', 'Popularity'])
+
+    for coun in country:
+        country_data.append([coun[0], coun[1]])
+
+
+    return render_template('index.html', language_data = language_data, top_language_data = top_language_data, tweets = tweets, words_data = words_data, \
+                            words_data_gauge = words_data_gauge, country_data = country_data,  trend = trend, trend_tweet = trend_tweet)
 
 if __name__ == "__main__":
     app.run(debug = True)

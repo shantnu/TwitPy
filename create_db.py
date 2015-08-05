@@ -28,6 +28,9 @@ c.execute(cmd)
 cmd = "CREATE TABLE love_data (love_words INT, swear_words INT, datetime TEXT)"
 c.execute(cmd)
 
+cmd = "CREATE TABLE country_data (country TEXT, datetime TEXT)"
+c.execute(cmd)
+
 conn.commit()
 
 conn.close()
