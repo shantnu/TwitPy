@@ -244,5 +244,6 @@ Out[76]:
 1. Most pop tweets
 2. Lang of all tweets as bar
 3. Lang of top tweets as pie 
-4.  Swear vs kind words
+4.  Swear vs kind words as donut chart
+Something with gauge chart- cool! Maybe swear vs good- show in both donut and gague
 '''    
