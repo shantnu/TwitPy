@@ -101,3 +101,4 @@ $RECYCLE.BIN/
 *.lnk
 # *.db
 local_config.py
+venv

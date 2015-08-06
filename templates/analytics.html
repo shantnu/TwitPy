@@ -27,7 +27,8 @@
         var options = {'title':'Most used languages on Twitter: All Tweets',
                        'width':800,
                        'height':600,
-                       sliceVisibilityThreshold: .01};
+                       sliceVisibilityThreshold: .01,
+                       is3D: true};
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
@@ -72,7 +73,7 @@
         var options3 = {'title':'Kind Words vs Swear Words',
                        'width':800,
                        'height':600,
-                       is3D: true};
+                       };
 
         // Instantiate and draw our chart, passing in some options.
         var chart3 = new google.visualization.PieChart(document.getElementById('chart_div3'));
@@ -125,7 +126,11 @@
     <div id="chart_div"></div>
     <div id="chart_div2"></div>
     <div id="chart_div3"></div>
-    <div id="chart_div4"></div>
+    Love vs Swear Words
+    
+    Love Words: {{words_data_gauge[1]}}
+    Swear Words: {{words_data_gauge[2]}}
+    <div id="chart_div4"> </div>
     <div id="chart_div5"></div>
 {% endblock %}
 
