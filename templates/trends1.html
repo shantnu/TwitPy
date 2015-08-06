@@ -1,0 +1,62 @@
+{% extends "index1.html" %}
+
+
+{% block main %}
+<!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <h2 class="post-title">
+                            Trending on Tweets
+                        </h2>
+                        <p class="post-subtitle">
+                           These are the hashtags trending on Twitter, plus some sample tweets.
+                        </p>
+
+                        <div id="chart_div"></div>
+
+
+                <hr>
+
+                <h2 class="post-title">
+                            Trending On Twitter: 
+                </h2>
+
+                <p> 
+                    {% for t in trend %}
+
+                    <strong> {{t | safe}} </strong>
+                    </br>
+                    {% endfor %}
+                 </p>
+
+                <hr>
+
+                    {% for t in trend_tweet %}
+    
+                    {{t | safe}} 
+                    
+                    {% endfor %}
+
+                   
+            </div>
+        </div>
+    </div>
+{% endblock %}    
+
+{% block tweets %} 
+
+    <h3> Trending On Twitter: </h3>
+    {% for t in trend %}
+
+    <strong> {{t | safe}} </strong>
+    </br>
+    {% endfor %}
+    
+    {% for t in trend_tweet %}
+    
+    {{t | safe}} 
+    
+    {% endfor %}
+
+ {% endblock %}

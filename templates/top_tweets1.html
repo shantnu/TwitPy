@@ -1,0 +1,31 @@
+{% extends "index1.html" %}
+
+{% block main %}
+<!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <h2 class="post-title">
+                            Most Popular Tweets
+                        </h2>
+                        <p class="post-subtitle">
+                           This is a sample of tweets that has been retweeted at least 10,000 times. Have a look, you will find most of them are pretty useless, some celebrity having a sandwich or something.
+                        </p>
+
+                        <div id="chart_div"></div>
+
+
+                <hr>
+
+                    {% for tweet in tweets %}
+                    {{ tweet | safe}}
+                    {% endfor %}
+
+
+
+                    
+            </div>
+        </div>
+    </div>
+{% endblock %}    
+

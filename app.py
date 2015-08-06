@@ -102,18 +102,18 @@ def main():
         country_data.append([coun[0], coun[1]])
 
 
-    return render_template('analytics.html', language_data = language_data, top_language_data = top_language_data,  words_data = words_data, \
+    return render_template('analytics1.html', language_data = language_data, top_language_data = top_language_data,  words_data = words_data, \
                             words_data_gauge = words_data_gauge, country_data = country_data)
 
 @app.route("/top_tweets")
 def top_tweets():
     tweets = get_top_tweets()
-    return render_template('top_tweets.html', tweets = tweets)
+    return render_template('top_tweets1.html', tweets = tweets)
 
 @app.route("/trends")
 def trends():
     trend, trend_tweet = get_trends()
-    return render_template('trends.html', trend = trend, trend_tweet = trend_tweet)
+    return render_template('trends1.html', trend = trend, trend_tweet = trend_tweet)
 
 
 

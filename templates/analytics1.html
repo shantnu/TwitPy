@@ -1,0 +1,195 @@
+{% extends "index1.html" %}
+{% block graphs %}
+      <!--Load the AJAX API-->
+      <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+      <script type="text/javascript">// Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart']});
+      google.load("visualization", "1", {packages:["gauge"]});
+      google.load("visualization", "1", {packages:["geochart"]});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+                
+        data.addColumn('string', 'Languages');
+        data.addColumn('number', 'Usage');
+        data.addColumn({type: 'number', role: 'tooltip'});
+        data.addRows( {{ language_data | safe }}  );
+
+        // Set chart options
+        var options = {'title':'Most used languages on Twitter: All Tweets',
+                       'width':800,
+                       'height':600,
+                       sliceVisibilityThreshold: .01,
+                       is3D: true};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+        
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//
+     
+        
+        var data2 = new google.visualization.DataTable();
+                
+        data2.addColumn('string', 'Languages');
+        data2.addColumn('number', 'Usage');
+        data2.addColumn({type: 'number', role: 'annotation'});
+        data2.addRows( {{ top_language_data | safe }}  );
+
+        // Set chart options
+        var options2 = {'title':'Most used languages on Twitter: Top Tweets',
+                       'width':800,
+                       'height':600,
+                        pieHole: 0.4};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart2 = new google.visualization.PieChart(document.getElementById('chart_div2'));
+
+        chart2.draw(data2, options2);
+        
+         // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//
+
+        
+        var data3 = new google.visualization.DataTable();
+                
+        data3.addColumn('string', 'Words');
+        data3.addColumn('number', 'Usage');
+        data3.addColumn({type: 'number', role: 'annotation'});
+        data3.addRows( {{ words_data | safe }}  );
+
+        // Set chart options
+        var options3 = {'title':'Kind Words vs Swear Words',
+                       'width':800,
+                       'height':600,
+                       };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart3 = new google.visualization.PieChart(document.getElementById('chart_div3'));
+
+        chart3.draw(data3, options3);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//        
+                      
+        var data4 = google.visualization.arrayToDataTable(
+          {{words_data_gauge | safe }}
+        );
+
+        var options4 = {
+          width: 800, height: 240,
+          redFrom: 90, redTo: 100,
+          yellowFrom:75, yellowTo: 90,
+          minorTicks: 5
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart4 = new google.visualization.Gauge(document.getElementById('chart_div4'));
+
+        chart4.draw(data4, options4);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//        
+
+        var data5 = google.visualization.arrayToDataTable(
+          {{ country_data | safe }}
+        );
+
+        var options5 = {
+
+        colorAxis: {colors: ['green', 'blue']}
+      };
+
+
+        var chart5 = new google.visualization.GeoChart(document.getElementById('chart_div5'));
+
+        chart5.draw(data5, options5);
+        
+        // ------------------------------------------------------------------//
+        // ------------------------------------------------------------------//                
+      }
+    </script>
+{% endblock %}
+
+{% block main %}
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <h2 class="post-title">
+                            Top Lanaguages on Twitter
+                        </h2>
+                        <p class="post-subtitle">
+                            We look at the most common languages in ~10,000 tweets.
+                        </p>
+
+                        <div id="chart_div"></div>
+
+
+                <hr>
+
+                        <h2 class="post-title">
+                            Top Lanaguages in Most Retweeted Tweets
+                        </h2>
+                        <p class="post-subtitle">
+                            This time, we only look at the languages of Tweets that have at least 10,000 retweets.
+                        </p>
+                        <div id="chart_div2"></div>
+
+                <hr>
+
+                        <h2 class="post-title">
+                            Love Words vs Swear Words on Twitter
+                        </h2>
+                        <p class="post-subtitle">
+                            We look at how many people are using kind/love words, vs how many people are swearing.
+                            <br/> <br/> 
+
+                            The words we looked at were:
+                            <br/><br/> 
+
+                            Love words = <em> Love, Thank, Happy, Bless </em>
+                            <br/><br/> 
+                            Swear words = <em> Fuck, Shit, Bitch, Idiot</em>
+                            <br/><br/> 
+
+                            We then plot the relative percentages of each.
+                        </p>    
+                            <div id="chart_div3"></div>
+                        <p class="post-subtitle">
+                        This is another way to look at the Love/Swear words data, using gauges instead of piecharts:
+
+                        </p>
+                        <div id="chart_div4"> </div>
+
+                         <br/><br/> 
+
+                <hr>
+
+                        <h2 class="post-title">
+                            Mention of countries on Twitter
+                        </h2>
+                        <p class="post-subtitle">
+                            We measure which countries are being tweeted about.
+
+                        </p>
+                        <div id="chart_div5"></div>
+
+                <hr>
+
+                    
+            </div>
+        </div>
+    </div>
+{% endblock %}
