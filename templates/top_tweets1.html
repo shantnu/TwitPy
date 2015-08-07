@@ -20,12 +20,18 @@
                     {% for tweet in tweets %}
                     {{ tweet | safe}}
                     {% endfor %}
-
+                <hr>
+                <br/><br/> 
+                
+                <small><em> Last updated: {{datetime_toptweets}} GMT</em></small>
 
 
                     
             </div>
         </div>
     </div>
+
+
+
 {% endblock %}    
 

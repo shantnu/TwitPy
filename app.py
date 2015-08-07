@@ -14,12 +14,14 @@ def get_top_tweets():
     result = c.fetchall()
     tweets = []
 
+    datetime_toptweets = result[0]['datetime']
+
     for tweet in result:
         tweets.append(tweet['top_tweet'])
     
     conn.close()
 
-    return tweets
+    return tweets, datetime_toptweets
 
 def get_trends():
     conn = sqlite3.connect(db)
@@ -32,6 +34,8 @@ def get_trends():
     c.execute("SELECT * from trend_data ORDER BY datetime DESC LIMIT 10") 
     result = c.fetchall()
 
+    datetime_trends = result[0]['datetime']
+
     for r in result:
         trend.append(r['trend'])
         trend_tweet.append(r['trend_id1'])
@@ -40,7 +44,7 @@ def get_trends():
 
     conn.close()
 
-    return trend, trend_tweet
+    return trend, trend_tweet, datetime_trends
 
 def read_data():
     
@@ -63,10 +67,11 @@ def read_data():
 
     result = c.fetchone()
     country = ast.literal_eval(result['country'])
+    datetime = result['datetime']
 
     conn.close()
 
-    return lang, top_lang, love_words, swear_words, country
+    return lang, top_lang, love_words, swear_words, country, datetime
 
 
 @app.route("/")
@@ -79,7 +84,7 @@ def main():
     country_data = []
 
 
-    lang, top_lang, love_words, swear_words, country = read_data()
+    lang, top_lang, love_words, swear_words, country, datetime = read_data()
     for l in lang:
         language_data.append([l[0], l[1], l[1]])
 
@@ -103,17 +108,17 @@ def main():
 
 
     return render_template('analytics1.html', language_data = language_data, top_language_data = top_language_data,  words_data = words_data, \
-                            words_data_gauge = words_data_gauge, country_data = country_data)
+                            words_data_gauge = words_data_gauge, country_data = country_data, datetime = datetime)
 
 @app.route("/top_tweets")
 def top_tweets():
-    tweets = get_top_tweets()
-    return render_template('top_tweets1.html', tweets = tweets)
+    tweets, datetime_toptweets = get_top_tweets()
+    return render_template('top_tweets1.html', tweets = tweets, datetime_toptweets = datetime_toptweets)
 
 @app.route("/trends")
 def trends():
-    trend, trend_tweet = get_trends()
-    return render_template('trends1.html', trend = trend, trend_tweet = trend_tweet)
+    trend, trend_tweet, datetime_trends = get_trends()
+    return render_template('trends1.html', trend = trend, trend_tweet = trend_tweet, datetime_trends = datetime_trends)
 
 
 
