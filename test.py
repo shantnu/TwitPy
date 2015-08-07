@@ -32,14 +32,14 @@ class TestTwit(unittest.TestCase):
         retweet_count = 0
         self.twit = TwitterMain(self.conn, num_tweets_to_grab, retweet_count)
 
-    def atest_streaming_data(self):
+    def test_streaming_data(self):
         self.twit.get_streaming_data()
         try:
             lang, top_lang, love_words, swear_words, country = self.read_data()
         except:
             self.fail("test_streaming_data: Nothing written to database. Test Failed.")
 
-    def atest_trends(self):
+    def test_trends(self):
         self.twit.get_trends()      
         try:
             trend, trend_tweet = self.get_trends()
