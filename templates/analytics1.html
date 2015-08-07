@@ -127,13 +127,23 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            
+                        <h2 class="post-title">
+                            What is this?
+                        </h2>
+                        <p class="post-subtitle">
+                            Every hour, we look at the live Twitter stream, and grab a few thousand tweets from it. We then perform an analysis of the tweets. The results are given below.
+                            <br/><br/>
+                            You can also look at the <a href="{{url_for('top_tweets')}}">most popular tweets</a>, or topics which are <a href="{{url_for('trends')}}">trending on Twitter</a>
+
+                        </p>                     
+
+                <hr>            
                         <h2 class="post-title">
                             Top Lanaguages on Twitter
                         </h2>
                         <p class="post-subtitle">
-                            We look at the most common languages in ~10,000 tweets.
-                            <br/><br/>
-                            Hover over the chart to get details.
+                            We look at the most common languages in the several thousand tweet we grabbed.
                         </p>
 
                         <div id="chart_div"></div>
