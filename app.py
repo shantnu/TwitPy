@@ -2,8 +2,7 @@ from flask import Flask, render_template
 app = Flask(__name__)
 import sqlite3
 import ast
-
-db = "./twit_data.db"
+from local_config import *
 
 def get_top_tweets():
     conn = sqlite3.connect(db)

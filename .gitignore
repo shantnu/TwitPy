@@ -99,6 +99,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-# *.db
+*.db
 local_config.py
 venv
