@@ -248,7 +248,7 @@ if __name__ == "__main__":
     try:
         conn = sqlite3.connect(db)
         twit = TwitterMain(conn, num_tweets_to_grab, retweet_count)
-        #twit.get_streaming_data()
+        twit.get_streaming_data()
         twit.get_trends()
 
     except Exception as e:
