@@ -7,6 +7,7 @@ from collections import Counter
 import sqlite3
 from local_config import *
 import re
+import time
 
 countries_list = ['Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina', 'Burundi', 'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad', 'Comoros', 'Congo', '"Congo', 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Ivory Coast', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Swaziland', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe', 'Afghanistan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Burma (Myanmar)', 'Cambodia', 'China', 'East Timor', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', '"Korea', '"Korea', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Nepal', 'Oman', 'Pakistan', 'Philippines', 'Qatar', 'Russian Federation', 'Saudi Arabia', 'Singapore', 'Sri Lanka', 'Syria', 'Tajikistan', 'Thailand', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen', 'Albania', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Georgia', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom', 'Vatican City', 'Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica', 'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua', 'Panama', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago', 'United States', 'Australia', 'Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'New Zealand', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tonga', 'Tuvalu', 'Vanuatu', 'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname', 'Uruguay', 'Venezuela']
 langs = \
@@ -83,6 +84,7 @@ class stats():
         self.swear_words = 0
         self.top_tweets = []
         self.countries = []
+        self.tweets_grabbed = 0
 
     def add_lang(self, lang):
         self.lang.append(lang)
@@ -102,6 +104,12 @@ class stats():
     def add_country(self, country):
         self.countries.append(country)
 
+    def set_tweets_grabbed(self):
+        self.tweets_grabbed += 1
+
+    def get_tweets_grabbed(self):
+        return self.tweets_grabbed
+
     def get_stats(self):
         return self.lang, self.top_lang, self.love_words, self.swear_words, self.top_tweets, self.countries
 
@@ -113,6 +121,7 @@ class listener(StreamListener):
         self.twit_utils = twit_utils
         self.num_tweets_to_grab = num_tweets_to_grab
         self.retweet_count = retweet_count
+        self.tweets_grabbed = 0
 
     def on_data(self, data):
         try:            
@@ -153,6 +162,7 @@ class listener(StreamListener):
                 self.stats_obj.save_top_tweets(tweet_html)
 
             self.count += 1
+            self.stats_obj.set_tweets_grabbed()
 
             if self.count == self.num_tweets_to_grab:
                 return False
@@ -192,13 +202,20 @@ class TwitterMain():
 
 
     def get_streaming_data(self):
-        try:
+        tweets_grabbed = 0
+        while (tweets_grabbed < self.num_tweets_to_grab):
             twitterStream = Stream(self.auth, listener(self.s, self.twit_utils, self.num_tweets_to_grab, self.retweet_count))
-            twitterStream.sample()
-        except Exception as e:
-                print("Error. Restarting Stream.... Error: ")
-                print(e.__doc__)
-                #print(e.message)
+            try:               
+                twitterStream.sample()
+            except Exception as e:
+                    print("Error. Restarting Stream.... Error: ")
+                    print(e.__doc__)
+                    #print(e.message)
+                    print("Le Error! Restart")
+                    time.sleep(3) # Sleep for 5 minutes if error ocurred
+            finally:
+                tweets_grabbed = self.s.get_tweets_grabbed()
+                print("tweets_grabbed = ", tweets_grabbed)
 
         lang, top_lang,love_words, swear_words, top_tweets, countries = self.s.get_stats()
 
@@ -246,10 +263,10 @@ if __name__ == "__main__":
     num_tweets_to_grab = 2000
     retweet_count = 10000
     try:
-        conn = sqlite3.connect(db)
+        conn = sqlite3.connect(db)        
         twit = TwitterMain(conn, num_tweets_to_grab, retweet_count)
-        #twit.get_streaming_data()
-        twit.get_trends()
+        twit.get_streaming_data()
+        #twit.get_trends()
 
     except Exception as e:
         print(e.__doc__)
